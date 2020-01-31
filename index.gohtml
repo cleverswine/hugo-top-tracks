@@ -9,18 +9,20 @@ draft: false
 <table>
     {{- range . }}
 	<tr>
-		<td width="72px">
+		<td width="96px">
             {{ $album := .Album -}}
             {{ range .Album.Images -}}
                 {{ if eq .Width 300 -}}
-                    <img src="{{ .URL }}" alt="{{ $album.Name }}" width="150" height="150" />
+                    <img src="{{ .URL }}" alt="{{ $album.Name }}" width="96" height="96" />
                 {{- end }}
             {{- end }}
         </td>
         <td>
-            <strong>{{ .Name }}</strong> - {{ range .Artists -}}<a href="{{ index .ExternalURLs "spotify" }}">{{ .Name }}</a>{{- end }}
+            <strong>{{ .Name }}</strong> - {{ range .Artists -}}{{ .Name }}&nbsp;{{- end }}
             <br/>
             {{ .Album.Name }} ({{ .Album | albumReleaseYear }})
+            <br/>
+            <em><a href="{{ index .ExternalURLs "spotify" }}">listen on spotify</a></em>
         </td>
 	</tr>
     {{- end }}
