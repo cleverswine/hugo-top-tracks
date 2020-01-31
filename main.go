@@ -1,8 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"html/template"
+	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"github.com/zmb3/spotify"
@@ -21,25 +23,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("---\ntitle: \"Spotify Top Tracks - %s\"\ndate: %s\ndraft: false\n---\n\n", time.Now().Format("Jan 2006"), time.Now().Format(time.RFC3339))
-	fmt.Print("<p>PUT SOME COMMENTS HERE</p>\n\n")
-	fmt.Println("<table>")
-	for i := 0; i < len(tracks.Tracks); i++ {
-		fmt.Println("\t<tr>")
-		track := tracks.Tracks[i]
-		artist := track.Artists[0]
-		album := track.Album
-		img := spotify.Image{} // todo: put in a placeholder image
-		if album.Images != nil {
-			for j := 0; j < len(album.Images); j++ {
-				if album.Images[j].Width == 64 {
-					img = album.Images[j]
-				}
-			}
-		}
-		fmt.Printf("\t\t<td width='72px'><img src='%s' alt='%s' width='150' height='150'/></td>\n<td><strong>%s</strong> - %s<br/>%s (%s)</td>\n",
-			img.URL, album.Name, track.Name, artist.Name, album.Name, album.ReleaseDate[:4])
-		fmt.Println("\t<tr>")
+	funcMap := template.FuncMap{
+		"now":              time.Now,
+		"dateFmtMMYYYY":    func(t time.Time) string { return t.Format("Jan 2006") },
+		"dateFmtRFC3339":   func(t time.Time) string { return t.Format(time.RFC3339) },
+		"albumReleaseYear": func(album *spotify.SimpleAlbum) string { return album.ReleaseDate[:4] },
 	}
-	fmt.Println("</table>")
+
+	f, err := os.Open("index.gohtml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+	t := template.Must(template.New("toptracks").Funcs(funcMap).Parse(string(b)))
+	t.Execute(os.Stdout, tracks.Tracks)
 }

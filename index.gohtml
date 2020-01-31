@@ -1,0 +1,27 @@
+---
+title: "Spotify Top Tracks - {{ now | dateFmtMMYYYY }}"
+date: {{ now | dateFmtRFC3339 }}
+draft: false
+---
+
+<p>PUT SOME COMMENTS HERE</p>
+
+<table>
+    {{- range . }}
+	<tr>
+		<td width="72px">
+            {{ $album := .Album -}}
+            {{ range .Album.Images -}}
+                {{ if eq .Width 300 -}}
+                    <img src="{{ .URL }}" alt="{{ $album.Name }}" width="150" height="150" />
+                {{- end }}
+            {{- end }}
+        </td>
+        <td>
+            <strong>{{ .Name }}</strong> - {{ range .Artists -}}<a href="{{ index .ExternalURLs "spotify" }}">{{ .Name }}</a>{{- end }}
+            <br/>
+            {{ .Album.Name }} ({{ .Album | albumReleaseYear }})
+        </td>
+	</tr>
+    {{- end }}
+</table>
